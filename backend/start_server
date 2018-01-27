@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if command -v node; then
+    node server.js
+else
+    echo 'You need to have Node.JS installed to run this program.'
+    exit 1
+fi
