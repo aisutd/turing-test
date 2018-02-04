@@ -1,76 +1,63 @@
 const API_KEY = 'CC6wqVttRBK3yNkQMrN7sbSqSjA';
-const PORT = 50340;
+const PORT = 3000
 
-const net = require('net');
 const Cleverbot = require('cleverbot');
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var path = require('path');
 
 var bot = new Cleverbot({
     key: API_KEY
 });
 
-var server = net.createServer(connected);
+var bot_response = '';
+var human_response = '';
 
-server.on('end', disconnected);
-server.on('error', handleError);
-server.listen(PORT, () => {
-    console.log('Server is now listening on port ' + PORT);
+// Server pages
+app.get('/', function(req, res){
+	res.sendFile(path.resolve(__dirname + '/../frontend/index.html'));
+});
+
+app.get('/operator', function(req, res){
+	res.sendFile(path.resolve(__dirname + '/../frontend/operator.html'));
+});
+
+// Events
+io.on('connection', function(socket){
+  console.log('user connected');
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+  
+  socket.on('chat message', function(msg){
+		console.log('question: ' + msg);
+		io.emit('chat message', msg);
+		//bot_response = msg;
+		
+		bot.query(msg).then(function(res) {
+			console.log('Cleverbot: ' + res.output);
+			bot_response = res.output;
+			respond(bot_response, human_response);
+		});
+  });
+	
+	socket.on('human response', function(msg) {
+		console.log('human message: ' + msg);
+		human_response = msg;
+		respond(bot_response, human_response);
+	});
+});
+
+http.listen(PORT, function(){
+  console.log('listening on *:' + PORT);
 });
 
 
-function connected(socket) {
-    console.log('Connection from ' + socket.localAddress);
-
-    let address = socket.localAddress;
-
-    socket.setKeepAlive(true, 15000);
-    socket.on('end', function() {
-        disconnected(address);
-    });
-    socket.on('data', function(buffer) {
-        try {
-            let res = JSON.parse(buffer.toString());
-            console.log('Received this from ' + socket.localAddress);
-            console.log(JSON.stringify(res, null, 2));
-        } catch (e) {
-            handleError(e);
-        }
-    });
+function respond(bot_response, human_response) {
+	if(bot_response != '' && human_response != '') {
+		io.emit('chat response', bot_response, human_response);
+		bot_response = '';
+		human_response = '';
+	}
 }
-
-function disconnected(address) {
-    console.log(address + ' disconnected.');
-}
-
-function handleError(err) {
-    console.log(err);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-bot .query('Hey Cleverbot, how you doin?')
-    .then(function(res) {
-        let text = 'Cleverbot says "' + res.output + '"';
-        console.log(text);
-
-        bot .query(text, { cs: res.cs })
-            .then(function(res2) {
-            text = 'Cleverbot says "' + res2.output + '"';
-            console.log(text);
-        });
-});
-
-*/
