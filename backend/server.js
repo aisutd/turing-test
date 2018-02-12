@@ -18,12 +18,16 @@ var participant_socket = null;
 var operator_socket = null;
 
 // Server pages
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
 	res.sendFile(path.resolve(__dirname + '/../frontend/index.html'));
 });
 
-app.get('/operator', function(req, res){
+app.get('/operator', function(req, res) {
 	res.sendFile(path.resolve(__dirname + '/../frontend/operator.html'));
+});
+
+app.get(/\/css\/.*/, function(req, res) {
+    res.sendFile(path.resolve(__dirname + '/../frontend' + req.url));
 });
 
 // Events
@@ -72,7 +76,7 @@ io.on('connection', function(socket){
                     }
                     //  Otherwise we're still waiting
                     else {
-                        participant_socket.emit('status', { ready: false, message: 'You have connected to the turing test server! We\'re still waiting on our other human participant.' });
+                        participant_socket.emit('status', { ready: false, message: 'You have connected to the turing test server! We\'re still waiting on your human interlocutor.' });
                     }
                 }
                 //  If we already have a participant connected
