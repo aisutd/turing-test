@@ -52,8 +52,13 @@
                 });
 
                 socket.on('reset', function() {
-                     $('#a-messages').html('');
-                     $('#b-messages').html('');
+                    $('#a-messages').html('');
+                    $('#b-messages').html('');
+
+                    if(Math.random() > 0.5) {
+					    bot = 'b'
+					    human = 'a'
+				    }
                 });
 			});
 			
