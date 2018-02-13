@@ -14,9 +14,11 @@ body {
 
 li.participant {
 	list-style-type: none;
+	font-size: 24px;
 }
 
 li.response {
 	list-style-type: none;
 	background-color: #E6E6E6;
+	font-size: 24px;
 }
