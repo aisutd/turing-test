@@ -21,6 +21,7 @@ var operator_socket = null;
 // Set resource paths
 app.use('/css', express.static(path.resolve(__dirname + '/../frontend/css')));
 app.use('/js', express.static(path.resolve(__dirname + '/../frontend/js')));
+app.use('/img', express.static(path.resolve(__dirname + '/../frontend/img')));
 
 // Server pages
 app.get('/', function(req, res) {
