@@ -8,8 +8,8 @@ body {
 	float: left; 
 	position: relative;
 	padding-left: 3%;
-	top: -15px;
-	width: 220px;
+	width: 100px;
+	width: 100px;
 }
 
 li.participant {
