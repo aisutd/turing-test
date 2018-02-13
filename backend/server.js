@@ -12,6 +12,7 @@ var bot = new Cleverbot({
     key: API_KEY
 });
 
+var last_conversation = null;
 var conversation = null;
 
 var participant_question = '';
@@ -205,6 +206,7 @@ function queryBot(msg) {
 }
 
 function onBotMessage(res) {
+    last_conversation = conversation;
     conversation = res.cs;
     console.log('Cleverbot: ' + res.output);
     bot_response = res.output;
@@ -225,6 +227,8 @@ function onOperatorMessage(msg) {
 function onCbRetry() {
     console.log('Operator requested a different response from CleverBot.');
 
+    conversation = last_conversation;
+
     operator_socket.emit('status', { ready: false, message: 'Waiting on CleverBot' });
     queryBot(participant_question);
 }
@@ -232,6 +236,7 @@ function onCbRetry() {
 function resetConversation() {
     io.emit('reset');
     conversation = null;
+    last_conversation = null;
     participant_question = '';
     bot_response = '';
     operator_response = '';
