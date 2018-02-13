@@ -1,100 +1,83 @@
-<html>
-	<head>
-		<title>AIS Turing Test</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		
-		<script src="/socket.io/socket.io.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>AIS Turing Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link href="/css/bootstrap.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
 		<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-		<script>		
-			$(function () {
-				var socket = io();
-				var bot = 'a'
-				var human = 'b'
+		
+		<link href="/css/frontend.css" rel="stylesheet">
+    <link href="/css/bootstrap-responsive.css" rel="stylesheet">
 
-                socket.on('connect', function() {
-                    //  Identify as participant
-                    socket.emit('identify', 'participant');
-                });
+		<script src="/js/index.js"></script>
+		
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="../assets/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
 
-                socket.on('disconnect', function() {
-                    $('#desc').html('Disconnected from server. Attempting to reconnect...');
-                    $('#button-ask').prop('disabled', true);
-                });
-			
-				// Random selection of who is person A/B
-				if(Math.random() > 0.5) {
-					bot = 'b'
-					human = 'a'
-				}
-				
-				$('form').submit(function(){
-				  socket.emit('message', $('#response-text').val());
-					$('#' + bot + '-messages').append($('<li>').text('You: ' + $('#response-text').val()));
-					$('#' + human + '-messages').append($('<li>').text('You: ' + $('#response-text').val()));
-				  $('#response-text').val('');
-				  return false;
-				});
+  <body>
 
-                socket.on('message', function(messages) {
-                    let bot_msg = messages.bot;
-                    let human_msg = messages.person;
-				  $('#' + bot + '-messages').append($('<li>').text('Response: ' + bot_msg));
-					$('#' + human + '-messages').append($('<li>').text('Response: ' + human_msg));
-				});
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <span class="brand" style="color: white">Artificial Intelligence Society: Turing Test Participant</span>
+        </div>
+      </div>
+    </div>
 
-                socket.on('status', function(s) {
-                    if(typeof s.ready == 'boolean') {
-                        $('#button-ask').prop('disabled', !s.ready);
-                    }
-                    if(typeof s.message == 'string') {
-                        $('#desc').html(s.message);
-                    }
-                });
-
-                socket.on('reset', function() {
-                    $('#a-messages').html('');
-                    $('#b-messages').html('');
-
-                    if(Math.random() > 0.5) {
-					    bot = 'b'
-					    human = 'a'
-				    }
-                });
-			});
-			
-		</script>
-	</head>
-	<body>
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-md-12">
-					<h1>Artificial Intelligence Society: Turing Test</h1>
-					<p id=desc>
-						***DESCRIPTION***
-					</p>
+    <div class="container">
+	
+		<div class="row">
+			<div class="navbar span12">
+			  <div class="navbar-inner">
+				<div class="container">
+				  <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				  </button>
+				  <h4 id="desc">**Description**</h4>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-6">
-					<h2>Person A</h2>
-					<ul id="a-messages"></ul>
-				</div>
-				<div class="col-md-6">
-					<h2>Person B</h2>
-						<ul id="b-messages"></ul>
-				</div>
-			</div>
-			
-			<div class="row">
-				<div class="col-md-12">
-					<form action="">
-						<textarea id="response-text" rows="3" cols="80"></textarea>
-						<button id="button-ask" class="btn btn-primary" disabled=true>Send</button>
-					</form>
-				</div>
+			  </div>
 			</div>
 		</div>
-	</body>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span6">
+          <h2 style="text-align: center">Person A</h2>
+          <ul id="a-messages" style="border: 1px solid black; padding: 2px;"></ul>
+        </div>
+        <div class="span6">
+          <h2 style="text-align: center">Person B</h2>
+          <ul id="b-messages" style="border: 1px solid black; padding: 2px;"></ul>
+       </div>
+      </div>
+
+      <hr>
+
+      <form action="">
+          <div class="row">
+            <div class="span11">
+                <textarea id="response-text" rows="5" style="width: 100%"></textarea>
+            </div>
+            <div class="span1">
+                <button id="button-ask" class="btn btn-primary" disabled=true style="width: 100%; height: 100%">Send</button>
+            </div>
+          </div>
+      </form>
+    </div> <!-- /container -->
+  </body>
 </html>
-
-

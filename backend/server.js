@@ -2,7 +2,8 @@ const API_KEY = 'CC6wqVttRBK3yNkQMrN7sbSqSjA';
 const PORT = 3000
 
 const Cleverbot = require('cleverbot');
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var path = require('path');
@@ -16,6 +17,10 @@ var operator_response = '';
 
 var participant_socket = null;
 var operator_socket = null;
+
+// Set resource paths
+app.use('/css', express.static(path.resolve(__dirname + '/../frontend/css')));
+app.use('/js', express.static(path.resolve(__dirname + '/../frontend/js')));
 
 // Server pages
 app.get('/', function(req, res) {
@@ -172,6 +177,7 @@ function onParticipantMessage(msg) {
     bot.query(msg).then(function(res) {
         console.log('Cleverbot: ' + res.output);
         bot_response = res.output;
+		operator_socket.emit('message', { bot: bot_response });
         respond();
     });
 
@@ -185,7 +191,8 @@ function onParticipantMessage(msg) {
 function onOperatorMessage(msg) {
     console.log('Operator: ' + msg);
 
-    operator_response = msg;
+	bot_response = msg.bot;
+    operator_response = msg.person;
     operator_socket.emit('status', { ready: false, message: 'Waiting on participant to send another message.' });
     respond(); 
 }
