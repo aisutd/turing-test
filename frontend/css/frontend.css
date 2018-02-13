@@ -11,3 +11,12 @@ body {
 	top: -15px;
 	width: 220px;
 }
+
+li.participant {
+	list-style-type: none;
+}
+
+li.response {
+	list-style-type: none;
+	background-color: #E6E6E6;
+}

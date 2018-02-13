@@ -22,8 +22,8 @@
 	
 	$('form').submit(function(){
 	  socket.emit('message', $('#response-text').val());
-		$('#' + bot + '-messages').append($('<li>').text('You: ' + $('#response-text').val()));
-		$('#' + human + '-messages').append($('<li>').text('You: ' + $('#response-text').val()));
+		$('#' + bot + '-messages').append($('<li class="participant">').text('You: ' + $('#response-text').val()));
+		$('#' + human + '-messages').append($('<li class="participant">').text('You: ' + $('#response-text').val()));
 	  $('#response-text').val('');
 	  return false;
 	});
@@ -31,8 +31,8 @@
 	socket.on('message', function(messages) {
 		let bot_msg = messages.bot;
 		let human_msg = messages.person;
-	  $('#' + bot + '-messages').append($('<li>').text('Response: ' + bot_msg));
-		$('#' + human + '-messages').append($('<li>').text('Response: ' + human_msg));
+	  $('#' + bot + '-messages').append($('<li class="response">').text('Response: ' + bot_msg));
+		$('#' + human + '-messages').append($('<li class="response">').text('Response: ' + human_msg));
 	});
 
 	socket.on('status', function(s) {
