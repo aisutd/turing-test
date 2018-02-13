@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if command -v node >/dev/null 2>&1; then
+    cd $DIR
     node server.js
 else
     echo 'You need to have Node.JS installed to run this program.'

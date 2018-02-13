@@ -1,5 +1,5 @@
 const API_KEY = 'CC6wqVttRBK3yNkQMrN7sbSqSjA';
-const PORT = 3000
+const PORT = 3000;
 
 const Cleverbot = require('cleverbot');
 var express = require('express');
@@ -12,6 +12,9 @@ var bot = new Cleverbot({
     key: API_KEY
 });
 
+var conversation = null;
+
+var participant_question = '';
 var bot_response = '';
 var operator_response = '';
 
@@ -75,7 +78,7 @@ io.on('connection', function(socket){
 
                     //  If we already have an operator
                     if(operator_socket) {
-                        io.emit('reset');
+                        resetConversation();
 
                         participant_socket.emit('status', { ready: true, message: 'The turing test has begun! Please send a message.' });
                         operator_socket.emit('status', { ready: false, message: 'The turing test has begun! Waiting for the user to send a message.' });
@@ -103,11 +106,11 @@ io.on('connection', function(socket){
                     operator_socket = socket;
 
                     operator_socket.on('message', onOperatorMessage);
+                    operator_socket.on('cb-retry', onCbRetry);
 
                     //  If we already have a participant
                     if(participant_socket) {
-                        io.emit('reset');
-
+                       resetConversation(); 
                         participant_socket.emit('status', { ready: true, message: 'The turing test has begun! Please send a message.' });
                         operator_socket.emit('status', { ready: false, message: 'The turing test has begun! Waiting for the user to send a message.' });
                     }
@@ -160,9 +163,16 @@ io.on('connection', function(socket){
   });
 });
 
-http.listen(PORT, function(){
-  console.log('listening on *:' + PORT);
+http.on('error', function(error) {
+    console.error('Failed to start listening on port ' + PORT + '. Is the server already running?');
+    console.error();
+    console.error(error);
 });
+
+http.listen(PORT, function(){
+    console.log('listening on *:' + PORT);
+});
+
 
 
 function respond() {
@@ -175,25 +185,54 @@ function respond() {
 }
 
 function onParticipantMessage(msg) {
-    bot.query(msg).then(function(res) {
-        console.log('Cleverbot: ' + res.output);
-        bot_response = res.output;
-		operator_socket.emit('message', { bot: bot_response });
-        respond();
-    });
+    participant_question = msg;
+    queryBot(msg);
 
     console.log('Participant: ' + msg);
 
     participant_socket.emit('status', { ready: false, message: 'Waiting on responses from human and bot.' });
     operator_socket.emit('message', { person: msg });
+    operator_socket.emit('status', { ready: false, message: 'Waiting on CleverBot.' });
+}
+
+function queryBot(msg) {
+    if(conversation != null) {
+        bot.query(msg, { cs: conversation }).then(onBotMessage);
+    }
+    else {
+        bot.query(msg).then(onBotMessage);
+    }
+}
+
+function onBotMessage(res) {
+    conversation = res.cs;
+    console.log('Cleverbot: ' + res.output);
+    bot_response = res.output;
+    operator_socket.emit('message', { bot: bot_response });
     operator_socket.emit('status', { ready: true, message: 'Participant is waiting on your response.' });
+    respond();
 }
 
 function onOperatorMessage(msg) {
-    console.log('Operator: ' + msg);
+    console.log('Operator: ' + msg.person);
 
 	bot_response = msg.bot;
     operator_response = msg.person;
     operator_socket.emit('status', { ready: false, message: 'Waiting on participant to send another message.' });
-    respond(); 
+    respond();
+}
+
+function onCbRetry() {
+    console.log('Operator requested a different response from CleverBot.');
+
+    operator_socket.emit('status', { ready: false, message: 'Waiting on CleverBot' });
+    queryBot(participant_question);
+}
+
+function resetConversation() {
+    io.emit('reset');
+    conversation = null;
+    participant_question = '';
+    bot_response = '';
+    operator_response = '';
 }

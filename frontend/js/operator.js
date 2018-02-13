@@ -24,6 +24,10 @@ $(function () {
 		$('#cleverbot-response-text').val('');
 		return false;
 	});
+
+    $('#button-cleverbot').click(function() {
+        socket.emit('cb-retry');
+    });
 	
 	socket.on('chat message', function(msg){
 		
