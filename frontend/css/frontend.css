@@ -8,15 +8,17 @@ body {
 	float: left; 
 	position: relative;
 	padding-left: 3%;
-	top: -15px;
-	width: 220px;
+	width: 100px;
+	width: 100px;
 }
 
 li.participant {
 	list-style-type: none;
+	font-size: 24px;
 }
 
 li.response {
 	list-style-type: none;
 	background-color: #E6E6E6;
+	font-size: 24px;
 }
