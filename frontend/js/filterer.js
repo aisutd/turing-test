@@ -1,10 +1,12 @@
 
 $(function () {
 	var socket = io();
+
+    var botMessage = '';
 					
 	socket.on('connect', function() {
-			//  Identify as operator
-			socket.emit('identify', 'operator');
+			//  Identify as filterer
+			socket.emit('identify', 'filterer');
 	});
 
 	socket.on('disconnect', function() {
@@ -13,17 +15,22 @@ $(function () {
 	});
 	
 	$('form').submit(function(){
-		let human_msg = $('#human-response-text').val();
 		//let bot_msg = $('#cleverbot-response-text').val();
 		
-		socket.emit('message', human_msg);
-		$('#human-messages').append($('<li class="response">').text('Operator: ' + $('#human-response-text').val()));
+		socket.emit('approve', botMessage);
+		$('#human-messages').append($('<li class="response">').text('Bot: ' + botMessage));
 		$('#human-response-text').val('');
+        botMessage = '';
 		
 		//$('#cleverbot-messages').append($('<li class="response">').text('Cleverbot: ' + $('#cleverbot-response-text').val()));
 		//$('#cleverbot-response-text').val('');
 		return false;
 	});
+
+    $('#button-retry').click(function() {
+        socket.emit('cb-retry');
+        $('#human-response-text').val('');
+    });
 
     //$('#button-cleverbot').click(function() {
     //    socket.emit('cb-retry');
@@ -33,12 +40,19 @@ $(function () {
 	//	
 	//});
 
-	socket.on('message', function(human_msg){
+	socket.on('message', function(msg){
 			//let human_msg = messages;
 			//let bot_msg = messages.bot;
 			
 			//if(messages != undefined) {
-			$('#human-messages').append($('<li class="participant">').text('Participant: ' + human_msg));
+            
+            if(typeof msg.person === 'string') {
+    			$('#human-messages').append($('<li class="participant">').text('Participant: ' + msg.person));
+            }
+            else if(typeof msg.bot === 'string') {
+                botMessage = msg.bot;
+                $('#human-response-text').val(botMessage);
+            }
 				//$('#cleverbot-messages').append($('<li class="participant">').text('Participant: ' + human_msg));
 			//}
 			
@@ -49,7 +63,8 @@ $(function () {
 
 	socket.on('status', function(s) {
 			if(typeof s.ready == 'boolean') {
-					$('#button-response').prop('disabled', !s.ready);
+					$('#button-approve').prop('disabled', !s.ready);
+                    $('#button-retry').prop('disabled', !s.ready);
 			}
 			if(typeof s.message == 'string') {
 					$('#desc').html(s.message);
