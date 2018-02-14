@@ -15,10 +15,12 @@
 	});
 
 	// Random selection of who is person A/B
-	if(Math.random() > 0.5) {
+	if(Math.random() < 0.5) {
 		bot = 'b'
 		human = 'a'
 	}
+
+    console.log(human);
 	
 	$('form').submit(function(){
 	  socket.emit('message', $('#response-text').val());
